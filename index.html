@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue LRC Player</title>
+  <link href="http://cdn.bootcss.com/animate.css/3.5.2/animate.css" rel="stylesheet">
+</head>
+<style>
+  body,html{
+    background: #333;
+  }
+  .container{
+    line-height: 1.8em;
+    color:#666;
+    text-align: center;
+    position: relative;
+  }
+  .container .line{
+    float:left;
+    margin-left:0.5em;
+    word-break: break-all;
+    transition: all 0.3s;
+    width:1em;
+    position: absolute;
+  }
+  .active{
+    font-size:2em;
+    line-height: 1.8em;
+    /*color: #6c6;*/
+
+  }
+  .bg{
+    position: absolute;
+    font-size:100px;
+    opacity: 0.5;
+    left:50%;
+    margin-left:-200px;
+    top:300px;
+    line-height: 1.5em;
+    text-align: center; 
+    transform: rotateZ(-30deg);
+  }
+  footer{
+    position: fixed;
+    bottom: 10px;
+    text-align: center;
+    width:100%;
+  }
+  </style>
+<body>
+  <div id="app" class="container">
+    <div class="bg"><div>{{name}} </div><small>{{artist}}</small></div>
+    <audio :src="file" autoplay></audio>
+    <!-- <div class="diff">{{time}} s</div> -->
+    <div class="line" v-for="(item, index) in lines" v-show="currentLine == index"
+    :class="currentLine == index ? currentClass : ''"
+    :style="randomStyle"
+    > {{item.text}}</div>
+    <footer>Design &amp; Coding by Johnny吴雪松</footer>
+  </div>
+  <script src="http://cdn.bootcss.com/vue/2.2.1/vue.js"></script>
+  <script>
+    var vm = new Vue({
+    
+      el: "#app",
+      data: {
+        name: '凉凉',
+        artist: '张碧晨',
+        file: 'll.mp4',
+        lrc: `[00:00.00]
+[00:01.78]杨宗纬&张碧晨 - 凉凉
+[00:02.88]电视剧《三生三世十里桃花》片尾曲
+[00:04.04]作词：刘畅
+[00:05.30]作曲：谭旋
+[00:06.46]编曲：韦国赟
+[00:48.24]女：入夜渐微凉
+[00:51.47]繁花落地成霜
+[00:53.04]你在远方眺望
+[00:55.37]耗尽所有暮光
+[00:58.42]不思量自难相忘
+[01:09.55]男：夭夭桃花凉
+[01:11.53]前世你怎舍下
+[01:14.22]这一海心茫茫
+[01:17.11]还故作不痛不痒不牵强
+[01:24.47]都是假象
+[01:30.74]女：凉凉夜色为你思念成河
+[01:36.13]化作春泥呵护着我
+[01:41.45]男：浅浅岁月拂满爱人袖
+[01:46.00]片片芳菲入水流
+[01:52.35]女：凉凉天意潋滟一身花色
+[01:57.40]落入凡尘伤情着我
+[02:02.76]男：生劫易渡情劫难了
+[02:06.22]折旧的心还有几分前生的恨
+[02:13.63]还有几分
+[02:17.58]合：前生的恨
+[02:43.08]女：也曾鬓微霜
+[02:44.90]也曾因你回光
+[02:47.45]悠悠岁月漫长
+[02:50.17]怎能浪费时光
+[02:52.98]去流浪
+[02:54.27]男：去流浪
+[02:57.47]女：去换成长
+[03:04.24]男：灼灼桃花凉
+[03:06.24]今生愈渐滚烫
+[03:08.73]一朵已放心上
+[03:11.39]足够三生三世背影成双
+[03:16.51]女：背影成双
+[03:18.87]男：在水一方
+[03:25.34]女：凉凉夜色为你思念成河
+[03:30.84]化作春泥呵护着我
+[03:36.12]男：浅浅岁月拂满爱人袖
+[03:40.53]片片芳菲入水流
+[03:47.14]女：凉凉天意潋滟一身花色
+[03:52.13]落入凡尘伤情着我
+[03:57.43]男：生劫易渡情劫难了
+[04:01.36]折旧的心还有几分前生的恨
+[04:16.20]女：凉凉三生三世恍然如梦
+[04:21.36]须臾的年风干泪痕
+[04:26.66]男：若是回忆不能再相认
+[04:31.16]就让情分落九尘
+[04:37.58]女：凉凉十里何时还会春盛
+[04:42.79]又见树下一盏风存
+[04:48.11]男：落花有意流水无情
+[04:51.72]别让恩怨爱恨凉透那花的纯
+[05:01.69]合：吾生愿牵尘
+[05:14.78]
+[05:16.25]我爱歌词网 www.5ilrc.com
+[05:17.49]歌词编辑：黎起铮
+[05:18.77]QQ：20891372
+[05:20.14]`,
+        lines: [],
+        animates: 'fadeIn'.split(' '),
+        randomAnimate: '',
+        currentLine: 0,
+        randomStyle: {},
+        time: '00:00.00'
+      },
+      watch: {
+        time: function (val) {
+          var that = this;
+          var num = parseFloat(val.replace(':', '.')) * 1000
+          
+          that.lines.forEach(function (item, index) {
+            if (item.time.indexOf(val.substr(0, 7)) === 0) {
+              that.randomStyle = {
+                color: `rgba(60, ${200 + randomInt(50)}, ${200 + randomInt(50)}, 0.9)`,
+                left: randomInt(document.body.clientWidth) + 'px',
+                top: randomInt(200) + 'px'
+              }
+              that.randomAnimate = that.animates[parseInt(Math.random() * that.animates.length)]
+              that.currentLine = index
+              return false
+            }
+          })
+        }
+      },
+      computed: {
+        currentClass: function () {
+          return 'active animated ' + this.randomAnimate
+        }
+      },
+      methods: {
+        fetch: function () {
+          this.lines = [];
+
+          var lines = this.lrc.split("\n");
+          for (var k in lines) {
+            var timeMatch = lines[k].match(/\[(\d+:\d+\.\d+)\]/)
+            this.lines.push({
+              time: timeMatch ? timeMatch.pop() : '',
+              text: lines[k].replace(/^.+?\]/, '')
+            })
+          }
+        },
+        run: function () {
+          var that = this
+          this.fetch()
+          var startTime = new Date()
+          var timer = setInterval(function () {
+            var currentTime = new Date()
+            var diff = new Date((currentTime - startTime) * 1)
+            var ms = parseInt(diff.getMilliseconds() / 10);
+            that.time = `${diff.getMinutes().pad()}:${diff.getSeconds().pad()}.${ms.pad()}`
+          }, 100)
+        }
+      },
+      created: function () {
+        this.run()
+      }
+    })
+    Number.prototype.pad = function () {
+      var n = this
+      return (n < 10) ? ("0" + n) : n;
+    }
+    function randomInt (n) {
+      return parseInt(Math.random() * n)
+    }
+  </script>
+</body>
+</html>
